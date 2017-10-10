@@ -1,0 +1,64 @@
+version: "3.0"
+services:
+  proxy:
+    image: nginx:latest
+    ports:
+      ####
+      - "80:80"
+      - "443:443"
+      ####
+    volumes:
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - ./nginx/log/:/var/log/nginx/
+
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/proxy.conf:/etc/nginx/proxy.conf
+    networks:
+        - frontend
+
+  magento:
+    image: khusbu/magento2.1.1-php5.6:latest
+    expose:
+      - "80"
+    volumes:
+      - ../:/var/www/html
+      - ./php/conf.d/custom.ini:/var/www/html
+      - /etc/localtime:/etc/localtime:ro
+    restart: always
+    networks:
+      - frontend
+      - backend
+  mysql:
+    image: mysql:5.7
+    ports:
+      ####
+      - "3307:3306"
+      ####
+    restart: always
+    env_file:
+      - ./mysql/.env
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - /etc/localtime:/etc/localtime:ro
+    restart: always
+    networks:
+      - backend
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    expose:
+      - "80"
+    environment:
+      - PMA_HOST=mysql
+      ####
+      - PMA_ABSOLUTE_URI=http://localhost/phpmyadmin/
+      ####
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    restart: always
+    networks:
+      - frontend
+      - backend
+networks:
+  frontend:
+  backend:
