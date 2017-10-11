@@ -17,7 +17,8 @@ services:
         - frontend
 
   magento:
-    image: khusbu/magento2.1.1-php5.6:latest
+    build: ./php
+    image: teksystem/php5.6:magento
     expose:
       - "80"
     volumes:
